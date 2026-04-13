@@ -18,7 +18,7 @@ interface LocationStore {
   updateStatuses: () => void
 }
 
-export const useLocationStore = create<LocationStore>((set, get) => ({
+export const useLocationStore = create<LocationStore>((set, _get) => ({
   locations: {},
 
   updateLocation: (riderId, coordinates, displayName) => {
