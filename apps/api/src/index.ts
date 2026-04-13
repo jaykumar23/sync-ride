@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { app, httpServer, io } from './server';
 import { connectDB } from './db';
-import { redis } from './cache';
+import { getRedis, isRedisEnabled } from './cache';
 import express from 'express';
 import cors from 'cors';
 import tripsRouter from './routes/trips';
@@ -176,26 +176,18 @@ const startServer = async () => {
     // Connect to MongoDB before starting HTTP server
     await connectDB();
     
-    // Try to connect to Redis, but don't fail if unavailable
-    try {
-      if (redis.status !== 'ready') {
-        console.log('⏳ Waiting for Redis to be ready...');
-        await Promise.race([
-          new Promise((resolve) => redis.once('ready', resolve)),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Redis connection timeout')), 5000))
-        ]);
+    // Check Redis status (optional - app works without it)
+    const redis = getRedis();
+    if (redis && isRedisEnabled()) {
+      try {
+        await redis.set('test:startup', 'ok', 'EX', 10);
+        const testVal = await redis.get('test:startup');
+        console.log(`🧪 Redis test: ${testVal === 'ok' ? '✅ PASS' : '❌ FAIL'}`);
+      } catch (redisError) {
+        console.warn('⚠️ Redis test failed:', redisError instanceof Error ? redisError.message : 'Unknown error');
       }
-      console.log('✅ Redis ready for operations');
-      
-      // Test Redis connection
-      await redis.set('test:startup', 'ok', 'EX', 10);
-      const testVal = await redis.get('test:startup');
-      console.log(`🧪 Redis test: ${testVal === 'ok' ? '✅ PASS' : '❌ FAIL'}`);
-    } catch (redisError) {
-      console.warn('⚠️ Redis connection failed - server will start without caching');
-      console.warn('   To enable Redis: Install locally or configure REDIS_URL');
-      console.warn('   Local Redis: redis://localhost:6379');
-      console.warn('   Redis error:', redisError instanceof Error ? redisError.message : 'Unknown error');
+    } else {
+      console.log('ℹ️ Running without Redis cache (REDIS_URL not configured)');
     }
     
     httpServer.listen(PORT, () => {
