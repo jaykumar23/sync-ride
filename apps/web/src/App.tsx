@@ -73,7 +73,6 @@ function App() {
   const [joinCode, setJoinCode] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [myDisplayName, setMyDisplayName] = useState<string>('')
-  const [_showCopied, setShowCopied] = useState(false)
   const [showMemberList, setShowMemberList] = useState(false)
   const [showStatusSheet, setShowStatusSheet] = useState(false)
   const [showTripSettings, setShowTripSettings] = useState(false)
@@ -255,7 +254,6 @@ function App() {
     (loc) => loc.riderId !== DEVICE_ID
   )
   
-  const _connectionStatus = useConnectionStore((state) => state.status)
   const isOnline = useConnectionStore((state) => state.isOnline)
   
   const { bufferLocationUpdate, isBuffering } = useOfflineBuffer({
@@ -309,25 +307,6 @@ function App() {
     })
   }, [locations])
 
-  const _copyToClipboard = useCallback((text: string) => {
-    navigator.clipboard.writeText(text)
-    setShowCopied(true)
-    setTimeout(() => setShowCopied(false), 2000)
-    if (navigator.vibrate) {
-      navigator.vibrate(50)
-    }
-  }, [])
-
-  const _shareWhatsApp = useCallback((code: string) => {
-    const message = encodeURIComponent(`Join my SyncRide trip: ${code}`)
-    window.open(`https://wa.me/?text=${message}`, '_blank')
-  }, [])
-
-  const _shareSMS = useCallback((code: string) => {
-    const message = encodeURIComponent(`Join my SyncRide trip: ${code}`)
-    window.location.href = `sms:?body=${message}`
-  }, [])
-  
   const myRider = useMemo(() => {
     return trip?.riders.find(r => r.riderId === DEVICE_ID)
   }, [trip?.riders])
