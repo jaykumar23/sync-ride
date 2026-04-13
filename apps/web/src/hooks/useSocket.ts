@@ -23,19 +23,6 @@ interface TripEventCallbacks {
   onRiderReconnected?: (riderId: string, displayName: string, bufferedPath: BufferedPathPoint[]) => void
 }
 
-interface UseSocketReturn {
-  socket: Socket | null
-  connected: boolean
-  error: string | null
-  sendSOS: (displayName: string, coordinates: Coordinates) => void
-  cancelSOS: () => void
-  sendStatus: (displayName: string, status: string) => void
-  endTrip: (tripCode?: string) => void
-  leaveTrip: (displayName: string, tripCode?: string) => void
-  kickRider: (targetRiderId: string, displayName: string) => void
-  retryConnection: () => void
-}
-
 export function useSocket(
   tripCode: string | null, 
   riderId: string | null,
