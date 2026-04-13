@@ -6,8 +6,7 @@ import {
   bufferLocation, 
   getBufferedLocations, 
   clearBuffer, 
-  checkStorageAvailable,
-  BufferedLocation 
+  checkStorageAvailable
 } from '../utils/offlineBuffer'
 
 const BATCH_INTERVAL = 5000 // Batch every 5 seconds
