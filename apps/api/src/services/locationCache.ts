@@ -1,4 +1,4 @@
-import { redis } from '../cache';
+import { getRedis } from '../cache';
 import { Coordinates } from 'shared-types';
 
 const LOCATION_TTL_SECONDS = 30;
@@ -21,6 +21,9 @@ export async function cacheLocation(
   displayName: string,
   coordinates: Coordinates
 ): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return; // Redis not available, skip caching
+
   const key = `${LOCATION_KEY_PREFIX}:${tripCode}:${riderId}`;
   const data: CachedLocation = {
     riderId,
@@ -41,6 +44,9 @@ export async function cacheLocation(
  * Used for late-joining riders to get current positions
  */
 export async function getTripLocations(tripCode: string): Promise<CachedLocation[]> {
+  const redis = getRedis();
+  if (!redis) return []; // Redis not available, return empty
+
   const pattern = `${LOCATION_KEY_PREFIX}:${tripCode}:*`;
   const locations: CachedLocation[] = [];
 
@@ -70,6 +76,9 @@ export async function getTripLocations(tripCode: string): Promise<CachedLocation
  * Returns true if deletion was successful or no keys existed
  */
 export async function deleteAllTripLocations(tripCode: string): Promise<boolean> {
+  const redis = getRedis();
+  if (!redis) return true; // Redis not available, nothing to delete
+
   const pattern = `${LOCATION_KEY_PREFIX}:${tripCode}:*`;
 
   try {
@@ -101,6 +110,9 @@ export async function deleteAllTripLocations(tripCode: string): Promise<boolean>
  * Delete location data for a specific rider (called when rider leaves)
  */
 export async function deleteRiderLocation(tripCode: string, riderId: string): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return; // Redis not available, nothing to delete
+
   const key = `${LOCATION_KEY_PREFIX}:${tripCode}:${riderId}`;
 
   try {
@@ -116,6 +128,9 @@ export async function deleteRiderLocation(tripCode: string, riderId: string): Pr
  * Returns -2 if key doesn't exist, -1 if no TTL, or seconds remaining
  */
 export async function getLocationTTL(tripCode: string, riderId: string): Promise<number> {
+  const redis = getRedis();
+  if (!redis) return -2; // Redis not available
+
   const key = `${LOCATION_KEY_PREFIX}:${tripCode}:${riderId}`;
   
   try {
