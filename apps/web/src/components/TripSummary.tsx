@@ -57,7 +57,7 @@ export const TripSummary = ({
   onShowAttribution,
   onExportSummary,
 }: TripSummaryProps) => {
-  const [showAttributionPrompt, setShowAttributionPrompt] = useState(false);
+  const [_showAttributionPrompt, setShowAttributionPrompt] = useState(false);
 
   useEffect(() => {
     if (isOpen && stats) {
