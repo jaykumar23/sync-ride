@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useConnectionStore, ConnectionStatus } from '../store/connectionStore'
+import { useConnectionStore } from '../store/connectionStore'
 
 interface ConnectionStatusBannerProps {
   onRetry?: () => void
