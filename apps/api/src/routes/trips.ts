@@ -375,12 +375,16 @@ router.get('/history/:deviceId', async (req, res) => {
         for (let i = 1; i < replay.locationHistory.length; i++) {
           const prev = replay.locationHistory[i - 1];
           const curr = replay.locationHistory[i];
-          if (prev.latitude && prev.longitude && curr.latitude && curr.longitude) {
+          const prevLat = prev.coordinates?.latitude;
+          const prevLon = prev.coordinates?.longitude;
+          const currLat = curr.coordinates?.latitude;
+          const currLon = curr.coordinates?.longitude;
+          if (prevLat && prevLon && currLat && currLon) {
             const R = 6371;
-            const dLat = (curr.latitude - prev.latitude) * Math.PI / 180;
-            const dLon = (curr.longitude - prev.longitude) * Math.PI / 180;
+            const dLat = (currLat - prevLat) * Math.PI / 180;
+            const dLon = (currLon - prevLon) * Math.PI / 180;
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(prev.latitude * Math.PI / 180) * Math.cos(curr.latitude * Math.PI / 180) *
+                      Math.cos(prevLat * Math.PI / 180) * Math.cos(currLat * Math.PI / 180) *
                       Math.sin(dLon/2) * Math.sin(dLon/2);
             totalDistance += R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
           }
