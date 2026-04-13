@@ -8,6 +8,8 @@ export interface Coordinates {
   longitude: number;
   accuracy: number; // meters
   timestamp: Date;
+  heading?: number; // degrees (0-360)
+  speed?: number;   // meters per second
 }
 
 export type MotionState = 'stationary' | 'predictable' | 'dynamic';
