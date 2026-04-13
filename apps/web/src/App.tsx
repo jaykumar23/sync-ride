@@ -73,7 +73,7 @@ function App() {
   const [joinCode, setJoinCode] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [myDisplayName, setMyDisplayName] = useState<string>('')
-  const [showCopied, setShowCopied] = useState(false)
+  const [_showCopied, setShowCopied] = useState(false)
   const [showMemberList, setShowMemberList] = useState(false)
   const [showStatusSheet, setShowStatusSheet] = useState(false)
   const [showTripSettings, setShowTripSettings] = useState(false)
@@ -212,7 +212,7 @@ function App() {
     onStatusReceived: (displayName: string, status: string) => {
       showToast(`${displayName}: ${status}`, 5000)
     },
-    onRiderJoined: async (riderId: string, riderName: string) => {
+    onRiderJoined: async (_riderId: string, riderName: string) => {
       showToast(`${riderName} joined the trip`, 3000)
       // Refresh trip data to get updated riders list
       if (trip) {
@@ -227,7 +227,7 @@ function App() {
         }
       }
     },
-    onRiderReconnected: (riderId: string, riderName: string, bufferedPath) => {
+    onRiderReconnected: (_riderId: string, riderName: string, bufferedPath: unknown[]) => {
       const pathCount = bufferedPath?.length || 0
       showToast(`🔄 ${riderName} reconnected${pathCount > 0 ? ` (${pathCount} locations synced)` : ''}`, 4000)
     }
@@ -241,7 +241,7 @@ function App() {
     sendStatus,
     endTrip,
     leaveTrip,
-    kickRider,
+    kickRider: _kickRider,
     retryConnection
   } = useSocket(
     trip?.tripCode || null,
@@ -255,7 +255,7 @@ function App() {
     (loc) => loc.riderId !== DEVICE_ID
   )
   
-  const connectionStatus = useConnectionStore((state) => state.status)
+  const _connectionStatus = useConnectionStore((state) => state.status)
   const isOnline = useConnectionStore((state) => state.isOnline)
   
   const { bufferLocationUpdate, isBuffering } = useOfflineBuffer({
@@ -300,8 +300,8 @@ function App() {
       if (riderId !== DEVICE_ID && loc) {
         const existing = otherRiderLocationsRef.current.get(riderId) || []
         existing.push({
-          latitude: loc.latitude,
-          longitude: loc.longitude,
+          latitude: loc.coordinates.latitude,
+          longitude: loc.coordinates.longitude,
           riderId,
         })
         otherRiderLocationsRef.current.set(riderId, existing)
@@ -309,7 +309,7 @@ function App() {
     })
   }, [locations])
 
-  const copyToClipboard = useCallback((text: string) => {
+  const _copyToClipboard = useCallback((text: string) => {
     navigator.clipboard.writeText(text)
     setShowCopied(true)
     setTimeout(() => setShowCopied(false), 2000)
@@ -318,12 +318,12 @@ function App() {
     }
   }, [])
 
-  const shareWhatsApp = useCallback((code: string) => {
+  const _shareWhatsApp = useCallback((code: string) => {
     const message = encodeURIComponent(`Join my SyncRide trip: ${code}`)
     window.open(`https://wa.me/?text=${message}`, '_blank')
   }, [])
 
-  const shareSMS = useCallback((code: string) => {
+  const _shareSMS = useCallback((code: string) => {
     const message = encodeURIComponent(`Join my SyncRide trip: ${code}`)
     window.location.href = `sms:?body=${message}`
   }, [])
