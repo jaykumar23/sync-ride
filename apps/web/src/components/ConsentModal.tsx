@@ -7,7 +7,7 @@ interface ConsentModalProps {
   onClose: () => void
 }
 
-export function ConsentModal({ isOpen, tripCode, onConsent, onClose }: ConsentModalProps) {
+export function ConsentModal({ isOpen, tripCode, onConsent, onClose: _onClose }: ConsentModalProps) {
   const [saveReplay, setSaveReplay] = useState(false)
   const [shareStats, setShareStats] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
