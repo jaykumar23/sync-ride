@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Trip } from '../models/Trip';
 import { TripReplay } from '../models/TripReplay';
 import { ConsentLog } from '../models/ConsentLog';
-import { redis } from '../cache';
+import { getRedis } from '../cache';
 import { generateTripCode } from '../utils/tripCode';
 import { Rider } from 'shared-types';
 import { deleteAllTripLocations, deleteRiderLocation } from '../services/locationCache';
@@ -45,12 +45,15 @@ router.post('/', async (req, res) => {
 
     await trip.save();
 
-    // Cache trip code in Redis with 12-hour TTL
-    const ttlSeconds = 12 * 60 * 60; // 12 hours
-    try {
-      await redis.setex(`trip:${tripCode}`, ttlSeconds, trip._id.toString());
-    } catch (redisError) {
-      console.warn('Redis caching failed, continuing without cache:', redisError);
+    // Cache trip code in Redis with 12-hour TTL (if available)
+    const redis = getRedis();
+    if (redis) {
+      const ttlSeconds = 12 * 60 * 60; // 12 hours
+      try {
+        await redis.setex(`trip:${tripCode}`, ttlSeconds, trip._id.toString());
+      } catch (redisError) {
+        console.warn('Redis caching failed, continuing without cache:', redisError);
+      }
     }
 
     return res.status(201).json({
@@ -176,11 +179,14 @@ router.post('/:code/end', async (req, res) => {
     trip.endedAt = new Date();
     await trip.save();
 
-    // Remove trip code from Redis cache
-    try {
-      await redis.del(`trip:${tripCode}`);
-    } catch (redisError) {
-      console.warn('Redis trip cache deletion failed:', redisError);
+    // Remove trip code from Redis cache (if available)
+    const redisClient = getRedis();
+    if (redisClient) {
+      try {
+        await redisClient.del(`trip:${tripCode}`);
+      } catch (redisError) {
+        console.warn('Redis trip cache deletion failed:', redisError);
+      }
     }
 
     return res.status(200).json({
