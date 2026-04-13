@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
+    "build:shared": "pnpm --filter shared-types build",
+    "build:api": "pnpm build:shared && pnpm --filter api build",
+    "build:web": "pnpm build:shared && pnpm --filter web build",
     "lint": "turbo lint",
     "test": "turbo test"
   },
