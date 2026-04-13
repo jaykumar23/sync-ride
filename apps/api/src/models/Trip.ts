@@ -3,6 +3,7 @@ import { Trip as TripType, Rider, TripStatus } from 'shared-types';
 
 interface ITripDocument extends Omit<TripType, 'createdAt'>, Document {
   createdAt: Date;
+  endedAt?: Date;
   riders: Rider[];
 }
 
