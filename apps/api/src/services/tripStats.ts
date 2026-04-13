@@ -89,12 +89,10 @@ export const calculatePersonalStats = (locations: Coordinate[]): PersonalStats =
     }
   }
 
-  const firstTimestamp = locations[0].timestamp
-    ? new Date(locations[0].timestamp).getTime()
-    : 0;
-  const lastTimestamp = locations[locations.length - 1].timestamp
-    ? new Date(locations[locations.length - 1].timestamp).getTime()
-    : 0;
+  const firstTs = locations[0].timestamp;
+  const lastTs = locations[locations.length - 1].timestamp;
+  const firstTimestamp = firstTs ? new Date(firstTs).getTime() : 0;
+  const lastTimestamp = lastTs ? new Date(lastTs).getTime() : 0;
   const ridingTime = (lastTimestamp - firstTimestamp) / 1000 / 60;
 
   const avgSpeed =
